@@ -3,195 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cineminha?</title>
+    <title>Um Convite Especial</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #fce7f3; /* Light pink background */
+            font-family: 'Poppins', sans-serif;
+            /* Using a dark background for the minimalist vibe */
+            background-color: #1a202c; /* Equivalent to gray-900 in Tailwind */
+            color: white; /* Default text color */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
-        .pink-primary {
-            background-color: #f472b6; /* Medium pink */
-        }
-        .pink-text-dark {
-            color: #db2777; /* Darker pink text */
-        }
-        /* Updated pastel colors for Superman theme */
+        /* Custom pastel colors for the Superman theme, adapted for dark background */
         .superman-blue-pastel {
             color: #A7D9FF; /* Pastel blue */
         }
         .superman-red-pastel {
             color: #FFB3B3; /* Pastel red */
         }
-        .superman-yellow-text {
-            color: #ffc107; /* Superman yellow (kept for general use if needed elsewhere) */
+        /* Styles for the moving "No" button */
+        .moving-btn {
+            position: absolute;
+            transition: all 0.3s ease-out;
         }
-        .day-cell {
-            display: flex;
+        /* Styles for calendar days */
+        .calendar-day {
+            transition: all 0.2s ease-in-out;
+            display: flex; /* Use flex to center content */
             justify-content: center;
             align-items: center;
             width: 100%;
             padding-top: 100%; /* Makes cells square */
-            position: relative;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            position: relative; /* For absolute positioning of content */
         }
-        .day-cell span {
+        .calendar-day span {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-weight: 600;
         }
-        .day-cell:not(.disabled):hover {
-            background-color: #fbcfe8; /* Lighter pink on hover */
+        .calendar-day:not(.disabled):hover {
+            transform: scale(1.1);
+            background-color: #ec4899; /* pink-500 */
+            color: white;
+            cursor: pointer;
+        }
+        .calendar-day.disabled {
+            background-color: #4a5568; /* gray-700 for disabled days */
+            color: #a0aec0; /* gray-400 for disabled text */
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        /* Styles for time slots */
+        .time-slot {
+            transition: all 0.2s ease-in-out;
+        }
+        .time-slot:hover {
             transform: scale(1.05);
         }
-        .day-cell.selected {
-            background-color: #ec4899; /* Darker pink when selected */
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Selected state for calendar days and time slots */
+        .selected {
+            background-color: #ec4899 !important; /* pink-500 */
+            color: white !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
         }
-        .day-cell.disabled {
-            background-color: #e5e7eb;
-            color: #9ca3af;
-            cursor: not-allowed;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            justify-content: center;
+        /* Main container to center content vertically and horizontally */
+        #main-container {
+            min-height: 100vh;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            flex-grow: 1; /* Allow it to grow and fill space */
         }
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
+        /* Hidden and opacity transitions for sections */
+        .transition-opacity {
+            transition: opacity 0.5s ease-in-out;
         }
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+        .opacity-0 {
+            opacity: 0;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header class="pink-primary text-white p-4 shadow-md rounded-b-xl">
-        <div class="container mx-auto flex flex-col items-center">
-                <span class="text-4xl font-extrabold superman-blue-pastel drop-shadow-lg">Superman:</span>
-                <span class="text-4xl font-extrabold superman-red-pastel drop-shadow-lg -mt-2">Legacy</span>
-            <!-- Movie Title with Superman pastel colors -->
-            <div class="flex flex-col items-center mt-2">
-                <h1 class="text-3xl font-bold tracking-wide mb-2 text-center">Pipoca, Tensão e Muitas Risadas!</h1>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto p-6 flex flex-col items-center justify-center">
-
+    <div id="main-container" class="p-6">
         <!-- Initial Question Section -->
-        <section id="initialQuestion" class="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-4 border-pink-primary">
-            <h2 class="text-3xl font-semibold pink-text-dark mb-6">Ainda tá a fim de ir ao cinema comigo?</h2>
-            <div class="flex justify-center gap-4">
-                <button id="yesButton" class="pink-primary hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300">
-                    Sim!
+        <div id="initial-question" class="text-center transition-opacity duration-500">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-pink-400">Uma pergunta rápida...</h1>
+            <p class="text-xl md:text-2xl mb-8">Você ainda quer ir ao cinema comigo?</p>
+            <div class="flex justify-center items-center gap-4 relative h-20">
+                <button id="yes-btn" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg transition-transform transform hover:scale-105">
+                    SIM! Com certeza!
                 </button>
-                <button id="noButton" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-gray-200">
+                <button id="no-btn" class="moving-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-lg">
                     Não
                 </button>
             </div>
-        </section>
-
-        <!-- Calendar Section (initially hidden) -->
-        <section id="calendarSection" class="hidden bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full text-center border-4 border-pink-primary mt-8">
-            <h2 class="text-3xl font-semibold pink-text-dark mb-6">Escolha um dia em Julho</h2>
-            <div class="text-xl font-bold mb-4">Julho 2025</div>
-            <div id="calendarGrid" class="grid grid-cols-7 gap-2 text-gray-700">
-                <div class="font-bold text-center">Dom</div>
-                <div class="font-bold text-center">Seg</div>
-                <div class="font-bold text-center">Ter</div>
-                <div class="font-bold text-center">Qua</div>
-                <div class="font-bold text-center">Qui</div>
-                <div class="font-bold text-center">Sex</div>
-                <div class="font-bold text-center">Sáb</div>
-                <!-- Calendar days will be inserted here by JS -->
-            </div>
-        </section>
-
-        <!-- Message Section (for "Não" or other messages) -->
-        <section id="messageSection" class="hidden bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center border-4 border-pink-primary mt-8">
-            <h2 id="messageText" class="text-2xl font-semibold pink-text-dark"></h2>
-        </section>
-    </main>
-
-    <!-- Time Selection Modal -->
-    <div id="timeModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="closeTimeModalButton">&times;</span>
-            <h2 class="text-2xl font-bold pink-text-dark mb-4">Escolha um horário para <span id="selectedDateText"></span></h2>
-            <div class="flex flex-wrap justify-center gap-4" id="timeButtonsContainer">
-                <!-- Time buttons will be inserted here by JS -->
-            </div>
         </div>
-    </div>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="closeConfirmationModalButton">&times;</span>
-            <h2 class="text-3xl font-bold pink-text-dark mb-4">Encontro Sugerido!</h2>
-            <p id="finalMessage" class="text-xl text-gray-800 mb-6"></p>
-            <button id="okFinalButton" class="pink-primary hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out">
-                Ok!
+        <!-- Date and Time Picker Section (initially hidden) -->
+        <div id="date-time-picker" class="hidden text-center transition-opacity duration-500 w-full max-w-md mx-auto opacity-0">
+            <h2 class="text-3xl md:text-4xl font-bold mb-2 text-pink-400">Que demais! 🎉</h2>
+            <p class="text-lg md:text-xl mb-6">Escolha o melhor dia e horário para você em Julho:</p>
+            
+            <!-- Calendar -->
+            <div class="bg-gray-800 p-4 rounded-lg shadow-xl">
+                <div class="text-center mb-4">
+                    <h3 class="text-2xl font-semibold">Julho 2025</h3>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center">
+                    <!-- Calendar days will be generated by JS -->
+                </div>
+            </div>
+
+            <!-- Time Slots -->
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-4">Que horas?</h3>
+                <div id="time-slots" class="flex flex-wrap justify-center gap-3">
+                    <button class="time-slot bg-gray-700 hover:bg-pink-500 text-white font-semibold py-2 px-6 rounded-full transition">15:00</button>
+                    <button class="time-slot bg-gray-700 hover:bg-pink-500 text-white font-semibold py-2 px-6 rounded-full transition">16:00</button>
+                    <button class="time-slot bg-gray-700 hover:bg-pink-500 text-white font-semibold py-2 px-6 rounded-full transition">17:00</button>
+                    <button class="time-slot bg-gray-700 hover:bg-pink-500 text-white font-semibold py-2 px-6 rounded-full transition">18:00</button>
+                </div>
+            </div>
+
+            <button id="confirm-btn" class="mt-8 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-10 rounded-lg text-lg shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled>
+                Confirmar
             </button>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="pink-primary text-white p-4 text-center mt-8 rounded-t-xl">
-        <p>&copy; 2025 Encontro no Cinema. Feito com carinho.</p>
-    </footer>
+        <!-- Confirmation Section (initially hidden) -->
+        <div id="confirmation" class="hidden text-center transition-opacity duration-500 opacity-0">
+            <div class="text-6xl mb-4">❤️</div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-pink-400">Combinado!</h2>
+            <p id="confirmation-text" class="text-xl md:text-2xl"></p>
+            <p class="mt-4 text-lg">Mal posso esperar!</p>
+        </div>
+    </div>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js"; // Import getAnalytics
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
         // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyAQ5j7rvDoIQe_AN-NL36UaN72hjZ2K7QI",
             authDomain: "nadia-project-d8d83.firebaseapp.com",
@@ -204,185 +168,161 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app); // Initialize Firestore
-        const analytics = getAnalytics(app); // Initialize Analytics
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialQuestion = document.getElementById('initialQuestion');
-            const yesButton = document.getElementById('yesButton');
-            const noButton = document.getElementById('noButton');
-            const calendarSection = document.getElementById('calendarSection');
-            const calendarGrid = document.getElementById('calendarGrid');
-            const messageSection = document.getElementById('messageSection');
-            const messageText = document.getElementById('messageText');
-            const timeModal = document.getElementById('timeModal');
-            const closeTimeModalButton = document.getElementById('closeTimeModalButton');
-            const selectedDateText = document.getElementById('selectedDateText');
-            const timeButtonsContainer = document.getElementById('timeButtonsContainer');
-            const confirmationModal = document.getElementById('confirmationModal');
-            const closeConfirmationModalButton = document.getElementById('closeConfirmationModalButton');
-            const finalMessage = document.getElementById('finalMessage');
-            const okFinalButton = document.getElementById('okFinalButton');
+        const initialQuestion = document.getElementById('initial-question');
+        const dateTimePicker = document.getElementById('date-time-picker');
+        const confirmation = document.getElementById('confirmation');
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const timeSlots = document.querySelectorAll('.time-slot');
+        const confirmationText = document.getElementById('confirmation-text');
 
-            let selectedDate = null; // To store the date selected from the calendar
+        let selectedDateElement = null; // Renamed to avoid conflict with Date object
+        let selectedTime = null;
 
-            // Current date to disable past days
+        // --- Gimmick for the "No" button ---
+        noBtn.addEventListener('mouseover', () => {
+            const container = noBtn.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            
+            const newTop = Math.random() * (containerRect.height - noBtn.offsetHeight);
+            const newLeft = Math.random() * (containerRect.width - noBtn.offsetWidth);
+
+            noBtn.style.top = `${newTop}px`;
+            noBtn.style.left = `${newLeft}px`;
+        });
+        
+        // --- Transition to Date Picker ---
+        yesBtn.addEventListener('click', () => {
+            initialQuestion.classList.add('opacity-0');
+            setTimeout(() => {
+                initialQuestion.classList.add('hidden');
+                dateTimePicker.classList.remove('hidden');
+                dateTimePicker.classList.add('opacity-100');
+            }, 500);
+        });
+
+        // --- Calendar Generation ---
+        function generateCalendar() {
+            const year = 2025;
+            const month = 6; // July (0-indexed)
+            
+            // Get the actual current date to disable past days dynamically
             const today = new Date();
-            const currentYear = today.getFullYear();
-            const currentMonth = today.getMonth(); // 0-indexed (July is 6)
-            const currentDay = today.getDate(); // 17 for July 17th
+            today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
 
-            // Event listener for "Sim" button
-            yesButton.addEventListener('click', () => {
-                initialQuestion.classList.add('hidden');
-                messageSection.classList.add('hidden'); // Hide any previous messages
-                calendarSection.classList.remove('hidden');
-                generateCalendar(2025, 6); // Generate calendar for July (month 6 is July)
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+
+            const dayHeaders = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+            dayHeaders.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'font-bold text-pink-400';
+                dayEl.innerText = day;
+                calendarGrid.appendChild(dayEl);
             });
 
-            // Event listener for "Não" button
-            noButton.addEventListener('click', () => {
-                initialQuestion.classList.add('hidden');
-                calendarSection.classList.add('hidden');
-                messageSection.classList.remove('hidden');
-                messageText.textContent = 'Que pena! Quem sabe na próxima?';
-            });
-
-            // Function to generate the calendar
-            function generateCalendar(year, month) {
-                calendarGrid.innerHTML = `
-                    <div class="font-bold text-center">Dom</div>
-                    <div class="font-bold text-center">Seg</div>
-                    <div class="font-bold text-center">Ter</div>
-                    <div class="font-bold text-center">Qua</div>
-                    <div class="font-bold text-center">Qui</div>
-                    <div class="font-bold text-center">Sex</div>
-                    <div class="font-bold text-center">Sáb</div>
-                `; // Reset grid and add day names
-
-                const firstDayOfMonth = new Date(year, month, 1);
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const startDay = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday, etc.
-
-                // Add empty cells for days before the 1st of the month
-                for (let i = 0; i < startDay; i++) {
-                    const emptyCell = document.createElement('div');
-                    emptyCell.classList.add('day-cell', 'disabled');
-                    calendarGrid.appendChild(emptyCell);
-                }
-
-                // Add days of the month
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayCell = document.createElement('div');
-                    dayCell.classList.add('day-cell', 'bg-gray-100', 'text-gray-800', 'hover:text-pink-text-dark');
-                    dayCell.innerHTML = `<span>${day}</span>`;
-
-                    const fullDate = new Date(year, month, day);
-
-                    // Disable past dates (before today)
-                    if (fullDate < new Date(currentYear, currentMonth, currentDay)) {
-                        dayCell.classList.add('disabled');
-                    } else {
-                        dayCell.addEventListener('click', () => {
-                            // Remove selected class from previously selected day
-                            const previouslySelected = document.querySelector('.day-cell.selected');
-                            if (previouslySelected) {
-                                previouslySelected.classList.remove('selected');
-                                previouslySelected.classList.add('bg-gray-100'); // Restore original background
-                                previouslySelected.classList.remove('text-white'); // Restore original text color
-                            }
-
-                            // Add selected class to the clicked day
-                            dayCell.classList.add('selected');
-                            dayCell.classList.remove('bg-gray-100'); // Remove original background
-                            dayCell.classList.add('text-white'); // Set text to white for selected
-
-                            selectedDate = fullDate;
-                            showTimeSelectionModal(fullDate);
-                        });
-                    }
-                    calendarGrid.appendChild(dayCell);
-                }
+            // Add blank spaces for days before the 1st of the month
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const blankEl = document.createElement('div');
+                calendarGrid.appendChild(blankEl);
             }
 
-            // Function to show time selection modal
-            function showTimeSelectionModal(date) {
-                const options = { weekday: 'long', month: 'long', day: 'numeric' };
-                selectedDateText.textContent = date.toLocaleDateString('pt-BR', options);
-                timeButtonsContainer.innerHTML = ''; // Clear previous buttons
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.innerHTML = `<span>${day}</span>`; // Wrap day number in span for centering
+                dayEl.className = 'calendar-day p-2 rounded-full cursor-pointer bg-gray-700';
 
-                const availableTimes = ['15:00', '16:00', '17:00', '18:00'];
+                const dayDate = new Date(year, month, day);
+                dayDate.setHours(0, 0, 0, 0); // Normalize for comparison
 
-                availableTimes.forEach(time => {
-                    const timeButton = document.createElement('button');
-                    timeButton.classList.add('pink-primary', 'hover:bg-pink-600', 'text-white', 'font-bold', 'py-2', 'px-6', 'rounded-full', 'shadow-md', 'transition', 'duration-200', 'ease-in-out', 'transform', 'hover:scale-105');
-                    timeButton.textContent = time;
-                    timeButton.addEventListener('click', () => {
-                        showConfirmationModal(selectedDate, time);
-                        timeModal.style.display = 'none'; // Close time modal
+                if (dayDate < today) {
+                    dayEl.classList.add('disabled');
+                } else {
+                    dayEl.addEventListener('click', () => {
+                        if (selectedDateElement) {
+                            selectedDateElement.classList.remove('selected');
+                            selectedDateElement.classList.remove('text-white');
+                            selectedDateElement.classList.add('bg-gray-700');
+                        }
+                        selectedDateElement = dayEl;
+                        selectedDateElement.classList.add('selected');
+                        selectedDateElement.classList.remove('bg-gray-700');
+                        selectedDateElement.classList.add('text-white');
+                        checkSelections();
                     });
-                    timeButtonsContainer.appendChild(timeButton);
-                });
-
-                timeModal.style.display = 'flex'; // Show the modal
+                }
+                calendarGrid.appendChild(dayEl);
             }
-
-            // Function to show final confirmation modal and save data to Firestore
-            async function showConfirmationModal(date, time) {
-                const formattedDate = date.toLocaleDateString('pt-BR', {
-                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                });
-
-                finalMessage.innerHTML = `Que ótimo! Você sugeriu o encontro para:<br><span class="font-bold pink-text-dark">${formattedDate}</span> às <span class="font-bold pink-text-dark">${time}</span>.<br>Mal posso esperar!`;
-                confirmationModal.style.display = 'flex';
-
-                try {
-                    // Envia os dados para o Firestore
-                    // Usando __app_id e userId para seguir as regras de segurança do Firestore
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                    // Para este caso, como não há autenticação de usuário no frontend,
-                    // usaremos um ID de usuário genérico ou gerado aleatoriamente.
-                    // Em um cenário real com múltiplos usuários, você usaria um ID de usuário autenticado.
-                    const userId = 'anonymous_user'; // Ou crypto.randomUUID() para um ID único por sessão
-
-                    await addDoc(collection(db, `artifacts/${appId}/users/${userId}/encontrosCinema`), {
-                        dataSugestao: date.toISOString().split('T')[0], // YYYY-MM-DD
-                        horaSugestao: time,
-                        timestamp: new Date()
-                    });
-                    console.log("Sugestão enviada com sucesso para o Firestore!");
-                } catch (e) {
-                    console.error("Erro ao adicionar documento: ", e);
-                    // Você pode mostrar uma mensagem de erro mais amigável ao usuário aqui
-                    finalMessage.innerHTML = `Ops! Houve um erro ao salvar a sugestão. Tente novamente.<br><span class="text-red-500">${e.message}</span>`;
+        }
+        
+        // --- Time Slot Selection ---
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', () => {
+                const currentSelected = document.querySelector('.time-slot.selected');
+                if (currentSelected) {
+                    currentSelected.classList.remove('selected');
                 }
-            }
-
-            // Close time modal when clicking on 'x'
-            closeTimeModalButton.addEventListener('click', () => {
-                timeModal.style.display = 'none';
-            });
-
-            // Close confirmation modal when clicking on 'x'
-            closeConfirmationModalButton.addEventListener('click', () => {
-                confirmationModal.style.display = 'none';
-            });
-
-            // Close confirmation modal when clicking on 'Ok!'
-            okFinalButton.addEventListener('click', () => {
-                confirmationModal.style.display = 'none';
-            });
-
-            // Close modals when clicking outside of their content
-            window.addEventListener('click', (event) => {
-                if (event.target === timeModal) {
-                    timeModal.style.display = 'none';
-                }
-                if (event.target === confirmationModal) {
-                    confirmationModal.style.display = 'none';
-                }
+                slot.classList.add('selected');
+                selectedTime = slot.innerText;
+                checkSelections();
             });
         });
+
+        // --- Check if both date and time are selected ---
+        function checkSelections() {
+            if (selectedDateElement && selectedTime) {
+                confirmBtn.disabled = false;
+            } else {
+                confirmBtn.disabled = true;
+            }
+        }
+
+        // --- Confirmation and Firebase Save ---
+        confirmBtn.addEventListener('click', async () => { // Made async for Firebase call
+            if (!selectedDateElement || !selectedTime) return;
+
+            const date = selectedDateElement.innerText;
+            const fullDate = new Date(2025, 6, parseInt(date)); // Reconstruct full date for Firebase
+
+            confirmationText.innerText = `Te vejo no dia ${date} de Julho às ${selectedTime}.`;
+
+            // Firebase Save Logic
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const userId = 'anonymous_user'; // Using a generic ID as no auth is implemented
+
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/encontrosCinema`), {
+                    dataSugestao: fullDate.toISOString().split('T')[0], // YYYY-MM-DD
+                    horaSugestao: selectedTime,
+                    timestamp: new Date()
+                });
+                console.log("Sugestão enviada com sucesso para o Firestore!");
+            } catch (e) {
+                console.error("Erro ao adicionar documento: ", e);
+                // Optionally, update confirmationText to show an error
+                confirmationText.innerText = `Ops! Houve um erro ao salvar a sugestão. Tente novamente.`;
+                document.getElementById('confirmation').querySelector('p.mt-4').innerText = `Erro: ${e.message}`;
+            }
+
+            // Transition to confirmation screen
+            dateTimePicker.classList.remove('opacity-100');
+            dateTimePicker.classList.add('opacity-0');
+            setTimeout(() => {
+                dateTimePicker.classList.add('hidden');
+                confirmation.classList.remove('hidden');
+                confirmation.classList.add('opacity-100');
+            }, 500);
+        });
+
+        // Initialize the calendar when the page loads
+        generateCalendar();
     </script>
+
 </body>
 </html>
