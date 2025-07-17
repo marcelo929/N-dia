@@ -102,6 +102,40 @@
             cursor: pointer;
         }
     </style>
+    // Adicione as importações do Firebase no seu <head> ou antes do seu script
+// <script type="module">
+//   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+//   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// </script>
+
+// Dentro do seu script principal:
+// const firebaseConfig = { /* Suas configurações do Firebase aqui */ };
+// const app = initializeApp(firebaseConfig);
+// const db = getFirestore(app);
+
+// ... dentro da função showConfirmationModal(date, time)
+async function showConfirmationModal(date, time) {
+    const formattedDate = date.toLocaleDateString('pt-BR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    finalMessage.innerHTML = `Que ótimo! Você sugeriu o encontro para:<br><span class="font-bold pink-text-dark">${formattedDate}</span> às <span class="font-bold pink-text-dark">${time}</span>.<br>Mal posso esperar!`;
+    confirmationModal.style.display = 'flex';
+
+    try {
+        // Envia os dados para o Firestore
+        await addDoc(collection(db, "encontrosCinema"), {
+            dataSugestao: date.toISOString().split('T')[0], // YYYY-MM-DD
+            horaSugestao: time,
+            timestamp: new Date()
+        });
+        console.log("Sugestão enviada com sucesso para o Firestore!");
+    } catch (e) {
+        console.error("Erro ao adicionar documento: ", e);
+        // Você pode mostrar uma mensagem de erro ao usuário aqui
+    }
+}
+
 </head>
 <body>
 
