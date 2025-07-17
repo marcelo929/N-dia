@@ -183,7 +183,31 @@
         <p>&copy; 2025 Encontro no Cinema. Feito com carinho.</p>
     </footer>
 
-    <script>
+    <!-- ** AQUI É ONDE SEU CÓDIGO FIREBASE E LÓGICA DO APP SE UNEM! ** -->
+    <script type="module">
+        // Importa as funções necessárias dos SDKs do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-analytics.js"; // Importa o SDK do Google Analytics
+
+        // Configuração do seu aplicativo Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQ5j7rvDoIQe_AN-NL36UaN72hjZ2K7QI",
+            authDomain: "nadia-project-d8d83.firebaseapp.com",
+            projectId: "nadia-project-d8d83",
+            storageBucket: "nadia-project-d8d83.firebasestorage.app",
+            messagingSenderId: "325127369432",
+            appId: "1:325127369432:web:6d289d96fd3f2d776addad",
+            measurementId: "G-XD6J7F37ZK"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app); // Inicializa o Analytics
+        const db = getFirestore(app); // Inicializa o Firestore
+
+        // Todo o restante da sua lógica JavaScript agora está dentro deste bloco de script de módulo.
+        // Isso garante que 'db' e outras funções importadas estejam acessíveis.
         document.addEventListener('DOMContentLoaded', () => {
             const initialQuestion = document.getElementById('initialQuestion');
             const yesButton = document.getElementById('yesButton');
@@ -201,23 +225,23 @@
             const finalMessage = document.getElementById('finalMessage');
             const okFinalButton = document.getElementById('okFinalButton');
 
-            let selectedDate = null; // To store the date selected from the calendar
+            let selectedDate = null; // Para armazenar a data selecionada do calendário
 
-            // Current date to disable past days
+            // Data atual para desabilitar dias passados
             const today = new Date();
             const currentYear = today.getFullYear();
-            const currentMonth = today.getMonth(); // 0-indexed (July is 6)
-            const currentDay = today.getDate(); // 17 for July 17th
+            const currentMonth = today.getMonth(); // 0-indexed (Julho é 6)
+            const currentDay = today.getDate();
 
-            // Event listener for "Sim" button
+            // Event listener para o botão "Sim"
             yesButton.addEventListener('click', () => {
                 initialQuestion.classList.add('hidden');
-                messageSection.classList.add('hidden'); // Hide any previous messages
+                messageSection.classList.add('hidden'); // Oculta quaisquer mensagens anteriores
                 calendarSection.classList.remove('hidden');
-                generateCalendar(2025, 6); // Generate calendar for July (month 6 is July)
+                generateCalendar(2025, 6); // Gera calendário para Julho (mês 6 é Julho)
             });
 
-            // Event listener for "Não" button
+            // Event listener para o botão "Não"
             noButton.addEventListener('click', () => {
                 initialQuestion.classList.add('hidden');
                 calendarSection.classList.add('hidden');
@@ -225,7 +249,7 @@
                 messageText.textContent = 'Que pena! Quem sabe na próxima?';
             });
 
-            // Function to generate the calendar
+            // Função para gerar o calendário
             function generateCalendar(year, month) {
                 calendarGrid.innerHTML = `
                     <div class="font-bold text-center">Dom</div>
@@ -235,20 +259,20 @@
                     <div class="font-bold text-center">Qui</div>
                     <div class="font-bold text-center">Sex</div>
                     <div class="font-bold text-center">Sáb</div>
-                `; // Reset grid and add day names
+                `; // Reseta a grade e adiciona os nomes dos dias
 
                 const firstDayOfMonth = new Date(year, month, 1);
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const startDay = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday, etc.
+                const startDay = firstDayOfMonth.getDay(); // 0 para Domingo, 1 para Segunda, etc.
 
-                // Add empty cells for days before the 1st of the month
+                // Adiciona células vazias para os dias antes do dia 1 do mês
                 for (let i = 0; i < startDay; i++) {
                     const emptyCell = document.createElement('div');
                     emptyCell.classList.add('day-cell', 'disabled');
                     calendarGrid.appendChild(emptyCell);
                 }
 
-                // Add days of the month
+                // Adiciona os dias do mês
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayCell = document.createElement('div');
                     dayCell.classList.add('day-cell', 'bg-gray-100', 'text-gray-800', 'hover:text-pink-text-dark');
@@ -256,23 +280,23 @@
 
                     const fullDate = new Date(year, month, day);
 
-                    // Disable past dates (before today)
+                    // Desabilita datas passadas (antes de hoje)
                     if (fullDate < new Date(currentYear, currentMonth, currentDay)) {
                         dayCell.classList.add('disabled');
                     } else {
                         dayCell.addEventListener('click', () => {
-                            // Remove selected class from previously selected day
+                            // Remove a classe 'selected' do dia previamente selecionado
                             const previouslySelected = document.querySelector('.day-cell.selected');
                             if (previouslySelected) {
                                 previouslySelected.classList.remove('selected');
-                                previouslySelected.classList.add('bg-gray-100'); // Restore original background
-                                previouslySelected.classList.remove('text-white'); // Restore original text color
+                                previouslySelected.classList.add('bg-gray-100'); // Restaura o fundo original
+                                previouslySelected.classList.remove('text-white'); // Restaura a cor do texto original
                             }
 
-                            // Add selected class to the clicked day
+                            // Adiciona a classe 'selected' ao dia clicado
                             dayCell.classList.add('selected');
-                            dayCell.classList.remove('bg-gray-100'); // Remove original background
-                            dayCell.classList.add('text-white'); // Set text to white for selected
+                            dayCell.classList.remove('bg-gray-100'); // Remove o fundo original
+                            dayCell.classList.add('text-white'); // Define o texto como branco para o selecionado
 
                             selectedDate = fullDate;
                             showTimeSelectionModal(fullDate);
@@ -282,11 +306,11 @@
                 }
             }
 
-            // Function to show time selection modal
+            // Função para mostrar o modal de seleção de horário
             function showTimeSelectionModal(date) {
                 const options = { weekday: 'long', month: 'long', day: 'numeric' };
                 selectedDateText.textContent = date.toLocaleDateString('pt-BR', options);
-                timeButtonsContainer.innerHTML = ''; // Clear previous buttons
+                timeButtonsContainer.innerHTML = ''; // Limpa os botões anteriores
 
                 const availableTimes = ['15:00', '16:00', '17:00', '18:00'];
 
@@ -296,40 +320,52 @@
                     timeButton.textContent = time;
                     timeButton.addEventListener('click', () => {
                         showConfirmationModal(selectedDate, time);
-                        timeModal.style.display = 'none'; // Close time modal
+                        timeModal.style.display = 'none'; // Fecha o modal de horário
                     });
                     timeButtonsContainer.appendChild(timeButton);
                 });
 
-                timeModal.style.display = 'flex'; // Show the modal
+                timeModal.style.display = 'flex'; // Mostra o modal
             }
 
-            // Function to show final confirmation modal
-            function showConfirmationModal(date, time) {
+            // Função para mostrar o modal de confirmação final e salvar no Firestore
+            async function showConfirmationModal(date, time) {
                 const formattedDate = date.toLocaleDateString('pt-BR', {
                     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                 });
 
                 finalMessage.innerHTML = `Que ótimo! Você sugeriu o encontro para:<br><span class="font-bold pink-text-dark">${formattedDate}</span> às <span class="font-bold pink-text-dark">${time}</span>.<br>Mal posso esperar!`;
                 confirmationModal.style.display = 'flex';
+
+                try {
+                    // Usa a instância 'db' que foi inicializada anteriormente neste script de módulo
+                    const docRef = await addDoc(collection(db, "cinemaSuggestions"), {
+                        date: date.toISOString(), // Salva a data em formato ISO
+                        time: time,
+                        timestamp: new Date() // Adiciona um carimbo de data/hora da criação
+                    });
+                    console.log("Sugestão de encontro salva no Firestore com ID: ", docRef.id);
+                } catch (e) {
+                    console.error("Erro ao salvar sugestão no Firestore: ", e);
+                }
             }
 
-            // Close time modal when clicking on 'x'
+            // Fecha o modal de horário ao clicar no 'x'
             closeTimeModalButton.addEventListener('click', () => {
                 timeModal.style.display = 'none';
             });
 
-            // Close confirmation modal when clicking on 'x'
+            // Fecha o modal de confirmação ao clicar no 'x'
             closeConfirmationModalButton.addEventListener('click', () => {
                 confirmationModal.style.display = 'none';
             });
 
-            // Close confirmation modal when clicking on 'Ok!'
+            // Fecha o modal de confirmação ao clicar no 'Ok!'
             okFinalButton.addEventListener('click', () => {
                 confirmationModal.style.display = 'none';
             });
 
-            // Close modals when clicking outside of their content
+            // Fecha os modais ao clicar fora do conteúdo
             window.addEventListener('click', (event) => {
                 if (event.target === timeModal) {
                     timeModal.style.display = 'none';
